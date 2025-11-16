@@ -2,27 +2,30 @@
 // Copy the configuration you need and update the main script.js file
 
 const API_CONFIGURATIONS = {
-    // Custom Model API Configuration
+    // Custom Model API Configuration (iFlytek Xingchen)
     custom: {
-        endpoint: 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions', // Replace with your actual interface address
-        apiKey: 'cb39d80bed4cd4906f3f61c3474eb83d',             // Replace with your actual API key
-        apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',       // Replace with your actual API secret
-        flowId: '7395016121178791938',          // Replace with your actual flow ID
+        endpoint: 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
+        apiKey: 'cb39d80bed4cd4906f3f61c3474eb83d',
+        apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
+        flowId: '7395016121178791938',
+        // Correct headers format for iFlytek API
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'cb39d80bed4cd4906f3f61c3474eb83d YOUR_API_KEY', // or custom auth format
-            'X-API-Secret': 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',      // custom header for API secret
-            'X-Flow-ID': '7395016121178791938'          // custom header for flow ID
+            'Accept': 'text/event-stream',
+            'Authorization': 'Bearer cb39d80bed4cd4906f3f61c3474eb83d:NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2'  // Format: Bearer API_KEY:API_SECRET
         },
-        requestBody: (messages) => ({
-            flow_id: 'YOUR_A7395016121178791938PI_FLOWID',
-            messages: messages,
-            api_key: 'cb39d80bed4cd4906f3f61c3474eb83d',
-            api_secret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
-            // Add other parameters your API expects
-            max_tokens: 1000,
-            temperature: 0.7,
-            stream: false
+        // Correct request body format
+        requestBody: (message) => ({
+            flow_id: '7395016121178791938',
+            uid: '21189316967',
+            parameters: {
+                'AGENT_USER_INPUT': message
+            },
+            ext: {
+                bot_id: 'workflow',
+                caller: 'workflow'
+            },
+            stream: true
         })
     },
 

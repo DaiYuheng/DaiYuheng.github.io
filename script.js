@@ -99,9 +99,9 @@ class ChatInterface {
         }
         
         const messageElement = document.createElement('div');
-        messageElement.className = `message ${role}`;
+        messageElement.className = `message ${role === 'system' ? 'assistant' : role}`;
         
-        const avatar = role === 'user' ? '👤' : '🤖';
+        const avatar = role === 'user' ? '👤' : role === 'system' ? '⚙️' : '🤖';
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         messageElement.innerHTML = `
@@ -211,6 +211,11 @@ class ChatInterface {
             apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
             flowId: '7395016121178791938',
         };
+
+        // 验证配置
+        if (!API_CONFIG.apiKey || !API_CONFIG.apiSecret || !API_CONFIG.flowId) {
+            throw new Error('API配置不完整，请检查apiKey、apiSecret和flowId');
+        }
         
         try {
             // Prepare conversation history
@@ -241,11 +246,10 @@ class ChatInterface {
                 this.chatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
             }
             
+            // 按照正确的格式构建请求体
             const requestBody = {
                 flow_id: API_CONFIG.flowId,
-                uid: "21189316967",
-                api_key: API_CONFIG.apiKey,      // Try auth in body
-                api_secret: API_CONFIG.apiSecret, // Try auth in body
+                uid: "123",
                 parameters: {
                     "AGENT_USER_INPUT": message
                 },
@@ -253,18 +257,18 @@ class ChatInterface {
                     bot_id: "workflow",
                     caller: "workflow"
                 },
-                stream: true,
-                chat_id: this.chatId,
-                history: history
+                stream: true
             };
+
+            // 正确的Authorization格式: Bearer API_KEY:API_SECRET
+            const authToken = `Bearer ${API_CONFIG.apiKey}:${API_CONFIG.apiSecret}`;
 
             console.log('API Request:', {
                 url: API_CONFIG.endpoint,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': API_CONFIG.apiKey,
-                    'X-API-Secret': API_CONFIG.apiSecret,
-                    'X-Flow-ID': API_CONFIG.flowId
+                    'Accept': 'text/event-stream',
+                    'Authorization': authToken
                 },
                 body: requestBody
             });
@@ -273,16 +277,15 @@ class ChatInterface {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': API_CONFIG.apiKey,  // Remove 'Bearer' prefix for iFlytek API
-                    'X-API-Secret': API_CONFIG.apiSecret,
-                    'X-Flow-ID': API_CONFIG.flowId
+                    'Accept': 'text/event-stream',
+                    'Authorization': authToken
                 },
                 body: JSON.stringify(requestBody)
             });
             
             if (!response.ok) {
                 // Get error details from response
-                let errorMessage = `API request failed: ${response.status}`;
+                let errorMessage = `API请求失败: ${response.status}`;
                 try {
                     const errorData = await response.text();
                     console.error('API Error Response:', errorData);
@@ -319,21 +322,33 @@ class ChatInterface {
             
         } catch (error) {
             console.error('LLM API Error:', error);
-            throw error;
+            
+            // 提供更详细的错误信息
+            if (error.message.includes('Failed to fetch')) {
+                throw new Error('网络连接失败，请检查网络连接或API地址是否正确');
+            } else if (error.message.includes('403')) {
+                throw new Error('API认证失败，请检查API密钥、密钥和流程ID是否正确');
+            } else if (error.message.includes('404')) {
+                throw new Error('API地址不存在，请检查endpoint配置');
+            } else if (error.message.includes('500')) {
+                throw new Error('服务器内部错误，请稍后重试');
+            } else {
+                throw new Error(`API调用失败: ${error.message}`);
+            }
         }
     }
     
-    // Mock response for demonstration (simulates your API response format)
-    getMockResponse(message) {
-        const responses = [
-            "你好！我收到了你的消息：\"" + message + "\"。这是一个演示响应，界面功能正常工作。",
-            "很有趣的问题！在实际部署中，这将由真正的语言模型API提供支持，比如你配置的讯飞星火API。",
-            "我目前运行在演示模式。要启用真实的AI响应，你需要：\n\n1. 确保API密钥正确\n2. 解决CORS跨域问题\n3. 取消注释实际的API调用代码\n\n你的消息是：\"" + message + "\"",
-            "这个聊天界面已经准备好集成LLM了！UI支持：\n\n• 实时消息传递\n• 对话历史管理\n• 加载状态\n• 响应式设计\n• Markdown格式\n\n只需要解决API连接问题就能完全正常工作。"
-        ];
+    // // Mock response for demonstration (simulates your API response format)
+    // getMockResponse(message) {
+    //     const responses = [
+    //         "你好！我收到了你的消息：\"" + message + "\"。这是一个演示响应，界面功能正常工作。",
+    //         "很有趣的问题！在实际部署中，这将由真正的语言模型API提供支持，比如你配置的讯飞星火API。",
+    //         "我目前运行在演示模式。要启用真实的AI响应，你需要：\n\n1. 确保API密钥正确\n2. 解决CORS跨域问题\n3. 取消注释实际的API调用代码\n\n你的消息是：\"" + message + "\"",
+    //         "这个聊天界面已经准备好集成LLM了！UI支持：\n\n• 实时消息传递\n• 对话历史管理\n• 加载状态\n• 响应式设计\n• Markdown格式\n\n只需要解决API连接问题就能完全正常工作。"
+    //     ];
         
-        return responses[Math.floor(Math.random() * responses.length)];
-    }
+    //     return responses[Math.floor(Math.random() * responses.length)];
+    // }
     
     // Parse your specific API response format
     parseAPIResponse(data) {
