@@ -1,6 +1,44 @@
 # GPT-like Chat Interface
 
-A modern, responsive chat interface built with vanilla HTML, CSS, and JavaScript, ready for LLM API integration.
+一个现代化的、响应式的聊天界面，使用纯HTML、CSS和JavaScript构建，集成讯飞星火API。
+
+## 🚀 快速开始
+
+### 第1步：部署Cloudflare Worker（5分钟）
+
+由于浏览器CORS限制，需要先部署一个代理服务器。
+
+**详细步骤见：[CLOUDFLARE-SETUP.md](CLOUDFLARE-SETUP.md)**
+
+简要步骤：
+1. 注册Cloudflare账号（免费）
+2. 创建Worker
+3. 复制Worker代码
+4. 获取Worker URL
+
+### 第2步：配置前端
+
+编辑 `script.js` 第208行：
+
+```javascript
+endpoint: 'https://xingchen-proxy.你的用户名.workers.dev',  // 替换为你的Worker URL
+```
+
+### 第3步：部署到GitHub Pages
+
+1. 上传文件到GitHub仓库
+2. Settings → Pages → Source: main
+3. 访问你的GitHub Pages地址
+
+### 完成！
+
+现在可以正常使用聊天界面了。
+
+---
+
+# GPT-like Chat Interface
+
+A modern, responsive chat interface built with vanilla HTML, CSS, and JavaScript, integrated with iFlytek Spark API.
 
 ## Features
 

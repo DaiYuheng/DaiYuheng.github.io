@@ -209,15 +209,21 @@ class ChatInterface {
 
     // API Integration - Custom Model API
     async callLLMAPI(message) {
-        // Custom API Configuration
-        // 注意：由于CORS限制，需要使用代理服务器
-        const USE_PROXY = true; // 设置为true使用代理，false直接调用（需要禁用浏览器CORS）
-        
+        // ============================================
+        // API配置 - 重要！请按照说明设置
+        // ============================================
+        // 
+        // 由于CORS限制，你需要部署Cloudflare Worker作为代理
+        // 详细步骤见 CLOUDFLARE-SETUP.md 文件（只需5分钟）
+        //
+        // 部署Worker后，将下面的endpoint改为你的Worker URL
+        // 例如：'https://xingchen-proxy.你的用户名.workers.dev'
+        //
         const API_CONFIG = {
-            // 如果使用代理，修改为你的代理服务器地址
-            endpoint: USE_PROXY 
-                ? 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://xingchen-api.xf-yun.com/workflow/v1/chat/completions')
-                : 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
+            // TODO: 替换为你的Cloudflare Worker URL
+            endpoint: 'https://xingchen-proxy.myuriiii28.workers.dev/',
+            
+            // 以下配置已在Worker中设置，这里保留用于参考
             apiKey: 'cb39d80bed4cd4906f3f61c3474eb83d',
             apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
             flowId: '7395016121178791938',
@@ -271,25 +277,17 @@ class ChatInterface {
                 stream: true
             };
 
-            // 正确的Authorization格式: Bearer API_KEY:API_SECRET
-            const authToken = `Bearer ${API_CONFIG.apiKey}:${API_CONFIG.apiSecret}`;
-
             console.log('API Request:', {
                 url: API_CONFIG.endpoint,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/event-stream',
-                    'Authorization': authToken
-                },
                 body: requestBody
             });
 
+            // 通过Cloudflare Worker代理调用API
+            // Worker会自动添加认证头
             const response = await fetch(API_CONFIG.endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/event-stream',
-                    'Authorization': authToken
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestBody)
             });
