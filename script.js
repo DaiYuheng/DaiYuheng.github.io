@@ -209,10 +209,15 @@ class ChatInterface {
 
     // API Integration - Custom Model API
     async callLLMAPI(message) {
-        // Custom API Configuration - Update these values with your actual API details
+        // Custom API Configuration
+        // 注意：由于CORS限制，需要使用代理服务器
+        const USE_PROXY = true; // 设置为true使用代理，false直接调用（需要禁用浏览器CORS）
+        
         const API_CONFIG = {
-            // Direct API endpoint (works with disabled CORS)
-            endpoint: 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
+            // 如果使用代理，修改为你的代理服务器地址
+            endpoint: USE_PROXY 
+                ? 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://xingchen-api.xf-yun.com/workflow/v1/chat/completions')
+                : 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
             apiKey: 'cb39d80bed4cd4906f3f61c3474eb83d',
             apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
             flowId: '7395016121178791938',
