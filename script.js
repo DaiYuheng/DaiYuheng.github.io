@@ -85,7 +85,9 @@ class ChatInterface {
             this.addMessage('assistant', response);
         } catch (error) {
             console.error('Error calling LLM API:', error);
-            this.addMessage('assistant', 'Sorry, I encountered an error while processing your request. Please try again.');
+            // 确保错误消息是字符串
+            const errorMsg = error.message || String(error) || 'Sorry, I encountered an error while processing your request. Please try again.';
+            this.addMessage('assistant', errorMsg);
         } finally {
             this.setLoading(false);
         }
@@ -121,6 +123,10 @@ class ChatInterface {
     
     formatMessage(content) {
         // Basic markdown-like formatting
+        // 确保content是字符串
+        if (typeof content !== 'string') {
+            content = String(content);
+        }
         return content
             .replace(/\n/g, '<br>')
             .replace(/`([^`]+)`/g, '<code>$1</code>')
