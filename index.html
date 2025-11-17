@@ -6,13 +6,18 @@
     <title>AI Chat Interface</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Markdown和代码高亮支持 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
 </head>
 <body>
     <div class="chat-container">
         <!-- Header -->
         <header class="chat-header">
             <div class="header-content">
-                <h1 class="chat-title">AI Assistant</h1>
+                <h1 class="chat-title">《工业设计史》知识点查询小助手</h1>
                 <button class="new-chat-btn" onclick="clearChat()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 5v14M5 12h14"/>
@@ -29,6 +34,7 @@
                     <div class="welcome-icon">🤖</div>
                     <h2>Welcome to AI Assistant</h2>
                     <p>How can I help you today?</p>
+                    <p>DYH</p>
                 </div>
             </div>
         </main>

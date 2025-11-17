@@ -115,18 +115,102 @@ class ChatInterface {
         `;
         
         this.messagesContainer.appendChild(messageElement);
+        
+        // 为代码块添加复制按钮
+        this.addCopyButtons(messageElement);
+        
         this.scrollToBottom();
         
         // Store message
         this.messages.push({ role, content, timestamp: Date.now() });
     }
     
+    // 为代码块添加复制按钮
+    addCopyButtons(messageElement) {
+        const codeBlocks = messageElement.querySelectorAll('pre code');
+        codeBlocks.forEach((codeBlock, index) => {
+            const pre = codeBlock.parentElement;
+            
+            // 创建复制按钮
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-code-btn';
+            copyButton.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>复制</span>
+            `;
+            
+            copyButton.addEventListener('click', async () => {
+                const code = codeBlock.textContent;
+                try {
+                    await navigator.clipboard.writeText(code);
+                    copyButton.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>已复制</span>
+                    `;
+                    copyButton.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyButton.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span>复制</span>
+                        `;
+                        copyButton.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
+            });
+            
+            pre.style.position = 'relative';
+            pre.appendChild(copyButton);
+        });
+    }
+    
     formatMessage(content) {
-        // Basic markdown-like formatting
         // 确保content是字符串
         if (typeof content !== 'string') {
             content = String(content);
         }
+        
+        // 配置marked选项
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,  // 支持换行
+                gfm: true,     // 支持GitHub风格的Markdown
+                highlight: function(code, lang) {
+                    // 如果指定了语言且highlight.js可用，进行代码高亮
+                    if (lang && typeof hljs !== 'undefined') {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (e) {
+                            console.warn('Highlight error:', e);
+                        }
+                    }
+                    // 否则尝试自动检测语言
+                    if (typeof hljs !== 'undefined') {
+                        try {
+                            return hljs.highlightAuto(code).value;
+                        } catch (e) {
+                            console.warn('Auto highlight error:', e);
+                        }
+                    }
+                    return code;
+                }
+            });
+            
+            // 使用marked解析Markdown
+            return marked.parse(content);
+        }
+        
+        // 如果marked不可用，使用基础格式化
         return content
             .replace(/\n/g, '<br>')
             .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -191,7 +275,8 @@ class ChatInterface {
             }
         }
         
-        return fullContent || '收到响应但无法解析内容';
+        // 去除首尾空白字符（包括空行）
+        return fullContent.trim() || '收到响应但无法解析内容';
     }
 
     // Handle streaming response for your API format

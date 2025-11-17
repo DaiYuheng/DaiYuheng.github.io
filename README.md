@@ -47,9 +47,13 @@ A modern, responsive chat interface built with vanilla HTML, CSS, and JavaScript
 - ⚡ Real-time messaging with smooth animations
 - 🔄 Auto-resizing input textarea
 - 💬 Conversation history management
-- 🎯 Ready for LLM API integration
+- 🎯 Integrated with iFlytek Spark API
 - 🚀 No framework dependencies
 - ✨ Loading states and error handling
+- 📝 **Full Markdown support** with syntax highlighting
+- 📋 **One-click code copy** functionality
+- 🎨 **190+ languages** code highlighting
+- 🌙 **GitHub Dark theme** for code blocks
 
 ## Quick Start
 
