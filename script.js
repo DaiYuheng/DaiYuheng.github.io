@@ -249,7 +249,7 @@ class ChatInterface {
             // 按照正确的格式构建请求体
             const requestBody = {
                 flow_id: API_CONFIG.flowId,
-                uid: "123",
+                uid: "21189316967",
                 parameters: {
                     "AGENT_USER_INPUT": message
                 },

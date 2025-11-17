@@ -4,7 +4,7 @@
 const API_CONFIGURATIONS = {
     // Custom Model API Configuration (iFlytek Xingchen)
     custom: {
-        endpoint: 'https://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
+        endpoint: 'http(s)://xingchen-api.xf-yun.com/workflow/v1/chat/completions',
         apiKey: 'cb39d80bed4cd4906f3f61c3474eb83d',
         apiSecret: 'NjA4Nzc1OGI1NTY5M2I0ZDYxNTJmYjM2',
         flowId: '7395016121178791938',
