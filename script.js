@@ -164,6 +164,36 @@ class ChatInterface {
         `;
     }
     
+    // 解析Server-Sent Events (SSE)格式的响应
+    parseSSEResponse(text) {
+        let fullContent = '';
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+            if (line.trim() === '' || !line.startsWith('data:')) continue;
+            
+            try {
+                // 移除"data: "前缀
+                const jsonStr = line.substring(5).trim();
+                if (jsonStr === '[DONE]') break;
+                
+                const data = JSON.parse(jsonStr);
+                
+                // 解析你的API响应格式
+                if (data.code === 0 && data.choices && data.choices.length > 0) {
+                    const choice = data.choices[0];
+                    if (choice.delta && choice.delta.content) {
+                        fullContent += choice.delta.content;
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to parse SSE line:', line, e);
+            }
+        }
+        
+        return fullContent || '收到响应但无法解析内容';
+    }
+
     // Handle streaming response for your API format
     async handleStreamingResponse(response) {
         const reader = response.body.getReader();
@@ -305,14 +335,24 @@ class ChatInterface {
                 throw new Error(errorMessage);
             }
             
-            // Handle streaming response
-            if (response.headers.get('content-type')?.includes('text/stream') || 
-                response.headers.get('content-type')?.includes('application/stream')) {
+            // 检查响应类型
+            const contentType = response.headers.get('content-type') || '';
+            
+            // 处理流式响应（Server-Sent Events）
+            if (contentType.includes('text/event-stream') || contentType.includes('text/stream')) {
                 return await this.handleStreamingResponse(response);
             }
             
-            // Handle regular JSON response
-            const data = await response.json();
+            // 处理普通文本响应（可能是SSE格式）
+            const responseText = await response.text();
+            
+            // 如果响应以"data:"开头，说明是SSE格式
+            if (responseText.trim().startsWith('data:')) {
+                return this.parseSSEResponse(responseText);
+            }
+            
+            // 尝试解析为JSON
+            const data = JSON.parse(responseText);
             
             // Parse the response according to your format
             if (data.code === 0 && data.choices && data.choices.length > 0) {

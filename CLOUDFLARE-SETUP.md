@@ -69,6 +69,9 @@ async function handleRequest(request) {
       body: body
     })
 
+    // 获取响应内容类型
+    const contentType = response.headers.get('content-type') || 'application/json'
+    
     // 获取响应
     const data = await response.text()
     
@@ -76,7 +79,7 @@ async function handleRequest(request) {
     return new Response(data, {
       status: response.status,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': contentType,
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
